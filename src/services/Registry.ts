@@ -1,6 +1,6 @@
-import { Enemy, type EnemyType } from '../models/Enemy';
-import { Inventory } from '../models/Inventory';
-import { Item } from '../models/Item';
+import { Enemy, type EnemyType } from './models/Enemy';
+import { Inventory } from './models/Inventory';
+import { Item } from './models/Item';
 
 interface SerializedEnemy {
   id: string;

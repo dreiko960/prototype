@@ -1,6 +1,6 @@
-import { Enemy, type EnemyType } from '../models/Enemy';
-import { Inventory } from '../models/Inventory';
-import { Item } from '../models/Item';
+import { Enemy, type EnemyType } from '../services/models/Enemy';
+import { Inventory } from '../services/models/Inventory';
+import { Item } from '../services/models/Item';
 import { Registry } from '../services/Registry';
 
 export class Controller {
@@ -444,6 +444,7 @@ export class Controller {
       case 'Mago': return 'fa-solid fa-wand-magic-sparkles';
       case 'Demonio': return 'fa-solid fa-ghost';
       case 'Troll': return 'fa-solid fa-mountain';
+      default: return 'fa-solid fa-question';
     }
   }
 

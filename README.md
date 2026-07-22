@@ -1,6 +1,6 @@
 # Prototype
 
-Proyecto web con Vite y TypeScript.
+Proyecto web con Vite y TypeScript listo para publicarse en GitHub y desplegarse en Netlify.
 
 ## Requisitos
 
@@ -17,13 +17,11 @@ npm install
 
 ## Ejecutar en modo desarrollo
 
-Para iniciar el servidor de desarrollo de Vite:
-
 ```bash
 npm run dev
 ```
 
-Luego abre la dirección que muestra la terminal, por ejemplo:
+Abre la dirección que muestra la terminal, por ejemplo:
 
 ```text
 http://localhost:5173
@@ -31,21 +29,35 @@ http://localhost:5173
 
 ## Generar la versión de producción
 
-Para compilar los archivos de producción:
-
 ```bash
 npm run build
 ```
 
-Los archivos generados se ubicarán en la carpeta `dist/`.
+Los archivos listos para publicar se generan en la carpeta `dist/`.
 
-## Previsualizar la compilación
+## Subir a GitHub
 
-Para servir la versión de producción localmente:
+1. Inicia un repositorio en GitHub.
+2. Añade los cambios:
 
 ```bash
-npm run preview
+git init
+git add .
+git commit -m "Primer despliegue"
+git branch -M main
+git remote add origin <tu-url-de-github>
+git push -u origin main
 ```
+
+## Desplegar en Netlify
+
+1. Inicia sesión en Netlify.
+2. Crea un nuevo sitio desde Git.
+3. Conecta tu repositorio de GitHub.
+4. Usa estas opciones:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+5. Publica el sitio.
 
 ## Archivos principales
 
