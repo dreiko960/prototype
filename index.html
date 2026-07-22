@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demostrador de Patrón Prototype - Creador de Enemigos</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-logo">
+        <i class="fa-solid fa-dna animate-pulse-slow"></i>
+        <h1>Prototype <span class="gradient-text">Game Sandbox</span></h1>
+      </div>
+      <p class="header-subtitle">Visualiza y comprende la diferencia entre la Clonación Superficial (Shallow Copy) y Profunda (Deep Copy)</p>
+    </header>
+
+    <main class="app-layout">
+      <!-- PANEL IZQUIERDO: EDITOR DE ENEMIGO -->
+      <section id="panel-editor" class="panel card-panel">
+        <div class="panel-header">
+          <i class="fa-solid fa-sliders text-accent"></i>
+          <h2>Editor de Enemigo Base</h2>
+        </div>
+        
+        <form id="enemy-form" class="panel-content">
+          <div class="form-group">
+            <label for="enemy-name"><i class="fa-solid fa-signature"></i> Nombre del Enemigo</label>
+            <input type="text" id="enemy-name" required placeholder="Ej. Orco Destructor, Arcano Oscuro" value="Orco Brutal">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-dragon"></i> Tipo de Enemigo</label>
+            <div class="type-selector-grid">
+              <label class="type-option orc active" data-type="Orco" style="--theme-color: #4ade80;">
+                <input type="radio" name="enemy-type" value="Orco" checked>
+                <i class="fa-solid fa-mask"></i> Orco
+              </label>
+              <label class="type-option dragon" data-type="Dragón" style="--theme-color: #f87171;">
+                <input type="radio" name="enemy-type" value="Dragón">
+                <i class="fa-solid fa-dragon"></i> Dragón
+              </label>
+              <label class="type-option skeleton" data-type="Esqueleto" style="--theme-color: #9ca3af;">
+                <input type="radio" name="enemy-type" value="Esqueleto">
+                <i class="fa-solid fa-skull"></i> Esqueleto
+              </label>
+              <label class="type-option mage" data-type="Mago" style="--theme-color: #c084fc;">
+                <input type="radio" name="enemy-type" value="Mago">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Mago
+              </label>
+              <label class="type-option demon" data-type="Demonio" style="--theme-color: #fb7185;">
+                <input type="radio" name="enemy-type" value="Demonio">
+                <i class="fa-solid fa-ghost"></i> Demonio
+              </label>
+              <label class="type-option troll" data-type="Troll" style="--theme-color: #fb923c;">
+                <input type="radio" name="enemy-type" value="Troll">
+                <i class="fa-solid fa-mountain"></i> Troll
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="range-header">
+              <label for="enemy-health"><i class="fa-solid fa-heart text-danger"></i> Vida (HP)</label>
+              <span id="health-value" class="range-badge">100</span>
+            </div>
+            <input type="range" id="enemy-health" min="10" max="500" value="100" step="5">
+          </div>
+
+          <div class="form-group">
+            <div class="range-header">
+              <label for="enemy-damage"><i class="fa-solid fa-sword text-warning"></i> Daño</label>
+              <span id="damage-value" class="range-badge">20</span>
+            </div>
+            <input type="range" id="enemy-damage" min="1" max="100" value="20" step="1">
+          </div>
+
+          <!-- SECCIÓN: INVENTARIO INICIAL -->
+          <div class="form-section-divider"></div>
+          
+          <div class="inventory-creator-section">
+            <label class="section-subtitle"><i class="fa-solid fa-backpack"></i> Inventario del Enemigo Base</label>
+            <div class="inline-item-form">
+              <input type="text" id="new-item-name" placeholder="Nombre del objeto (Ej. Espada)">
+              <select id="new-item-type">
+                <option value="Arma">⚔ Arma</option>
+                <option value="Escudo">🛡 Escudo</option>
+                <option value="Armadura">👕 Armadura</option>
+                <option value="Poción">🧪 Poción</option>
+                <option value="Amuleto">📿 Amuleto</option>
+              </select>
+              <select id="new-item-rarity">
+                <option value="Común">Común</option>
+                <option value="Raro" class="text-rare">Raro</option>
+                <option value="Épico" class="text-epic">Épico</option>
+                <option value="Legendario" class="text-legendary">Legendario</option>
+              </select>
+              <button type="button" id="btn-add-initial-item" class="btn btn-secondary">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+
+            <!-- Lista de objetos a crear -->
+            <ul id="draft-item-list" class="item-list-preview">
+              <!-- Cargado dinámicamente -->
+            </ul>
+          </div>
+
+          <button type="submit" id="btn-create-base" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-plus"></i> Crear Enemigo Base
+          </button>
+        </form>
+      </section>
+
+      <!-- PANEL CENTRAL: CONTROLES, LOGS Y STATS -->
+      <section id="panel-controls" class="panel">
+        <div class="panel-content">
+          <!-- SECCIÓN STATS -->
+          <div class="panel-section stats-grid">
+            <div class="stat-card">
+              <span class="stat-title">Base Creado</span>
+              <span id="stat-base-status" class="stat-value text-danger">No</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Total Clones</span>
+              <span id="stat-total-clones" class="stat-value">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Shallow Clones</span>
+              <span id="stat-shallow-clones" class="stat-value text-shallow">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Deep Clones</span>
+              <span id="stat-deep-clones" class="stat-value text-deep">0</span>
+            </div>
+          </div>
+
+          <!-- SECCIÓN CLONACIÓN -->
+        <div class="panel-section clone-control-card">
+          <div class="panel-header-sub">
+            <i class="fa-solid fa-copy text-accent"></i>
+            <h3>Operaciones de Clonación</h3>
+          </div>
+          
+          <div class="clone-mode-selector">
+            <label class="clone-mode-option">
+              <input type="radio" name="clone-type" value="SHALLOW" checked>
+              <div class="option-details">
+                <span class="option-title text-shallow">Shallow Copy (Superficial)</span>
+                <span class="option-desc">Copia el enemigo, pero mantiene la <strong>misma referencia de inventario</strong> en memoria. Si alteras el inventario del clon, ¡el original se modificará!</span>
+              </div>
+            </label>
+            <label class="clone-mode-option">
+              <input type="radio" name="clone-type" value="DEEP">
+              <div class="option-details">
+                <span class="option-title text-deep">Deep Copy (Profunda)</span>
+                <span class="option-desc">Clona recursivamente todos los atributos y crea una <strong>nueva copia del inventario</strong>. Cada clon tiene su propio inventario independiente.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="btn-clone" class="btn btn-accent btn-block" disabled>
+              <i class="fa-solid fa-dna"></i> Generar Clon
+            </button>
+            <button id="btn-reset" class="btn btn-danger-outline">
+              <i class="fa-solid fa-rotate-left"></i> Restablecer Todo
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN ALERTAS Y ADVERTENCIAS -->
+        <div class="panel-section alerts-container">
+          <div id="ecosystem-alert" class="ecosystem-alert-box safe">
+            <i class="fa-solid fa-circle-check alert-icon"></i>
+            <div class="alert-details">
+              <h4 class="alert-title">Ecosistema Seguro</h4>
+              <p class="alert-desc">No hay referencias compartidas en memoria.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN HISTORIAL -->
+        <div class="panel-section log-console-container">
+          <div class="panel-header-sub">
+            <i class="fa-solid fa-terminal text-muted"></i>
+            <h3>Historial de Operaciones</h3>
+            <button id="btn-clear-log" class="btn-icon" title="Limpiar historial">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+          <div id="log-console" class="log-console">
+            <!-- Rellenado por JS -->
+          </div>
+        </div>
+      </div>
+      </section>
+
+      <!-- PANEL DERECHO: GALERÍA DE TARJETAS -->
+      <section id="panel-gallery" class="panel">
+        <div class="panel-header">
+          <div class="title-with-count">
+            <i class="fa-solid fa-images text-accent"></i>
+            <h2>Galería de Enemigos</h2>
+          </div>
+          <span id="gallery-count" class="badge">0</span>
+        </div>
+
+        <div class="panel-content">
+          <div class="gallery-info-bar">
+            <i class="fa-solid fa-info-circle"></i>
+            <span>Pasa el cursor o haz clic en un clon <strong>Shallow</strong> para ver qué enemigos comparten su inventario.</span>
+          </div>
+
+          <div id="enemies-grid" class="enemies-grid">
+            <!-- Tarjetas creadas dinámicamente -->
+            <div class="empty-gallery-msg">
+              <i class="fa-solid fa-dragon animate-float"></i>
+              <p>Crea un Enemigo Base en el editor para iniciar la simulación</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal para Agregar Ítems Rápidos en Tarjetas -->
+  <div id="quick-item-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-bag-shopping"></i> Añadir Objeto al Inventario</h3>
+        <button id="btn-close-modal" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-enemy-info">
+          <span>Modificando a: <strong id="modal-enemy-name" class="text-accent">Orco</strong></span>
+          <div id="modal-share-warning" class="modal-warning-banner hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>¡Atención! Este enemigo comparte su inventario. El cambio afectará a otros clones/originales.</span>
+          </div>
+        </div>
+
+        <div class="quick-items-grid">
+          <button class="quick-item-btn rarity-common" data-name="Espada de Hierro" data-type="Arma" data-rarity="Común">
+            ⚔ Espada de Hierro (Común)
+          </button>
+          <button class="quick-item-btn rarity-rare" data-name="Escudo de Acero" data-type="Escudo" data-rarity="Raro">
+            🛡 Escudo de Acero (Raro)
+          </button>
+          <button class="quick-item-btn rarity-epic" data-name="Poción Superior" data-type="Poción" data-rarity="Épico">
+            🧪 Poción Superior (Épico)
+          </button>
+          <button class="quick-item-btn rarity-legendary" data-name="Báculo del Caos" data-type="Arma" data-rarity="Legendario">
+            ⚡ Báculo del Caos (Legendario)
+          </button>
+          <button class="quick-item-btn rarity-epic" data-name="Coraza de Placas" data-type="Armadura" data-rarity="Épico">
+            👕 Coraza de Placas (Épico)
+          </button>
+          <button class="quick-item-btn rarity-legendary" data-name="Anillo del Dragón" data-type="Amuleto" data-rarity="Legendario">
+            📿 Anillo del Dragón (Legendario)
+          </button>
+        </div>
+
+        <div class="form-section-divider">O crear un objeto personalizado</div>
+        
+        <form id="modal-custom-item-form" class="inline-item-form-vertical">
+          <div class="modal-form-row">
+            <input type="text" id="modal-item-name" placeholder="Ej. Lanza de Fuego" required>
+            <select id="modal-item-type">
+              <option value="Arma">⚔ Arma</option>
+              <option value="Escudo">🛡 Escudo</option>
+              <option value="Armadura">👕 Armadura</option>
+              <option value="Poción">🧪 Poción</option>
+              <option value="Amuleto">📿 Amuleto</option>
+            </select>
+            <select id="modal-item-rarity">
+              <option value="Común">Común</option>
+              <option value="Raro">Raro</option>
+              <option value="Épico">Épico</option>
+              <option value="Legendario">Legendario</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Añadir Objeto Creado</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry Script -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
